@@ -1,2 +1,2 @@
 # globalhealth_development
-Global Health and Development
+Global Health and Development in Costa Rica vs. other Latin Countries
