@@ -1,0 +1,12 @@
+name: hispanic_countries
+title: hispanic_countries
+username: ekass
+account: ekass
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 13557460
+bundleId: 9487148
+url: https://ekass.shinyapps.io/hispanic_countries/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
