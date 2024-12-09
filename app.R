@@ -31,8 +31,10 @@ ui <- fluidPage(
         choices = NULL,  
         multiple = TRUE
       ),
-      helpText("Check this box to include all countries in the analysis."),
+      helpText(tags$strong("Check this box to include all countries in the analysis.")),
       checkboxInput("show_all", "Show All Countries", value = FALSE),
+      helpText(tags$strong("Check this box to view a bar plot by country.")),
+      checkboxInput("show_bar_plot", "Show Bar Plot by Country", value = FALSE),
       checkboxGroupInput("gender", "Select Gender:",
                          choices = c("Female", "Male"),
                          selected = c("Female", "Male")),
@@ -47,6 +49,10 @@ ui <- fluidPage(
     ),
     mainPanel(
       plotOutput("lifeExpectancyPlot", height = "800px"),
+      conditionalPanel(
+        condition = "input.show_bar_plot == true",
+        plotOutput("barPlot", height = "800px")
+      ),
       h3("Country Data Overview"),
       DT::DTOutput("filteredData")
     )
@@ -92,7 +98,7 @@ server <- function(input, output, session) {
   output$lifeExpectancyPlot <- renderPlot({
     data <- filtered_data()
     
-    if (is.null(data)) return(NULL)  # Avoid empty plots
+    if (is.null(data)) return(NULL)  
     
     # Create ridge plot
     ggplot(data, aes(x = life_expectancy_merged, y = country, fill = Gender)) +
@@ -116,6 +122,37 @@ server <- function(input, output, session) {
         
       )
   })
+  
+  output$barPlot <- renderPlot({
+    if (!input$show_bar_plot) return(NULL)  
+    
+    data <- filtered_data()
+    if (is.null(data)) return(NULL)
+    
+    # Create the bar plot
+    ggplot(data, aes(x = year, y = life_expectancy_merged, fill = Gender)) +
+      geom_col(position = "dodge", alpha = 0.8) + 
+      labs(
+        title = "Life Expectancy by Year, Gender, and Country Facet",
+        x = "Year",
+        y = "Life Expectancy",
+        fill = "Gender"
+      ) +
+      scale_x_continuous(breaks = seq(min(data$year), max(data$year), by = 1)) +
+      theme_minimal() +
+      theme(
+        legend.position = "bottom",
+        legend.title = element_text(size = 14),
+        legend.text = element_text(size = 12),
+        axis.text.x = element_text(size = 14, angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 14),
+        axis.title.x = element_text(size = 16, face = "bold"),
+        axis.title.y = element_text(size = 16, face = "bold"),
+        plot.title = element_text(size = 20)
+      ) +
+      facet_wrap(~country, scales = "free_y")  
+  })
+  
   
   
   output$filteredData <- DT::renderDT({
