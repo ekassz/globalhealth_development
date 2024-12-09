@@ -12,13 +12,11 @@ hispanic_countries <- c("Mexico" , "Colombia", "Spain", "Argentina" ,"Peru", "Ve
 
 globalhealth_dev <- read.csv("data/global_health.csv") %>%
   clean_names()
-#View(globalhealth_dev)
 
 hispanic_health_dev <- globalhealth_dev %>%
   filter(country %in% hispanic_countries)%>% 
   filter(!is.na(life_expectancy), !is.na(year))
 
-# Define UI for application that draws a histogram
 ui <- fluidPage(
   titlePanel("Life Expectancy by Gender in Hispanic Countries"),
   sidebarLayout(
@@ -59,7 +57,6 @@ ui <- fluidPage(
 )
 )
 
-# Define server logic required to draw a histogram
 server <- function(input, output, session) {
   observe({
     updateSelectInput(session, "countries", choices = unique(hispanic_health_dev$country))
@@ -75,7 +72,6 @@ server <- function(input, output, session) {
       data <- data %>% filter(country %in% input$countries)
     }
     
-    # Correct Data Transformation
     data <- data %>%
       pivot_longer(
         cols = c(life_expectancy_female, life_expectancy_male), 
@@ -94,13 +90,11 @@ server <- function(input, output, session) {
     data
   })
   
-  # Render ridge plot for life expectancy
   output$lifeExpectancyPlot <- renderPlot({
     data <- filtered_data()
     
     if (is.null(data)) return(NULL)  
     
-    # Create ridge plot
     ggplot(data, aes(x = life_expectancy_merged, y = country, fill = Gender)) +
       geom_density_ridges(scale = 2, alpha = 0.7) +
       labs(
@@ -129,7 +123,6 @@ server <- function(input, output, session) {
     data <- filtered_data()
     if (is.null(data)) return(NULL)
     
-    # Create the bar plot
     ggplot(data, aes(x = year, y = life_expectancy_merged, fill = Gender)) +
       geom_col(position = "dodge", alpha = 0.8) + 
       labs(
@@ -164,6 +157,4 @@ server <- function(input, output, session) {
   
 }
 
-# Run app
 shinyApp(ui, server)
-
